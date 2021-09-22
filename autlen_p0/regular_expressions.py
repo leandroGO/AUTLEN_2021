@@ -2,21 +2,21 @@
 Esta es la expresion regular para el ejercicio 0, que se facilita
 a modo de ejemplo:
 """
-RE0 = "[a-zA-Z]+"
+RE0 = r"[a-zA-Z]+"
 
 """
 Completa a continuacion las expresiones regulares para los
 ejercicios 1-5:
 """
-RE1 = "[0-9a-zA-Z_]+.py"
-RE2 = "-?((0|([1-9][0-9]*))(\.[0-9]*)?|(\.[0-9]+))"
+RE1 = r"[0-9a-zA-Z_]+.py"
+RE2 = r"-?((0|([1-9][0-9]*))(\.[0-9]*)?|(\.[0-9]+))"
 
-nombreApellidoAt = "[a-z]+\.[a-z]+@"
-RE3 = nombreApellidoAt + "(estudiante\.)?uam\.es"
+nombreApellidoAt = r"[a-z]+\.[a-z]+@"
+RE3 = nombreApellidoAt + r"(estudiante\.)?uam\.es"
 
-noParentesis = "[^\(\)]*"
-RE4 = "({0}\({0}\){0})*".format(noParentesis)
-RE5 = "({0}\({0}(\({0}\){0})*{0}\){0})+".format(noParentesis)
+noParentesis = r"[^\(\)]*"
+RE4 = r"({0}\({0}\){0})*".format(noParentesis)
+RE5 = r"({0}\({0}(\({0}\){0})*{0}\){0})+".format(noParentesis)
 
 """
 Recuerda que puedes usar el fichero prueba.py para probar tus
@@ -25,7 +25,7 @@ expresiones regulares.
 
 """
 EJERCICIO 6:
-Incluye a continuacion, dentro de esta cadena, tu respuesta 
+Incluye a continuacion, dentro de esta cadena, tu respuesta
 al ejercicio 6.
 
 Como se puede observar, la respuesta dada para los paréntesis anidados recrea la
