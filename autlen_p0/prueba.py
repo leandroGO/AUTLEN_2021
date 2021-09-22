@@ -8,7 +8,7 @@ def check_expression(expr: str, string: str, expected: bool) -> None:
     return re.fullmatch(expr, string)
 
 
-if re.fullmatch(RE2, "."):
+if re.fullmatch(RE2, "-."):
     print("OK")
 else:
     print("ERROR")
