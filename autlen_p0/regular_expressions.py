@@ -28,14 +28,15 @@ EJERCICIO 6:
 Incluye a continuacion, dentro de esta cadena, tu respuesta
 al ejercicio 6.
 
-Como se puede observar, la respuesta dada para los paréntesis anidados recrea la
-estructura de los mismos manualmente (en la expresión se puede ver cómo se abren
-dos niveles y luego se cierran). Es evidente que esto no se puede aplicar para
-una profundidad infinita, ya que la expresión nunca terminaría (o debería ser
-una expresión recurrente). El motivo por el que tampoco es posible recrearlo por
-otros métodos es que las expresiones regulares carecen de un sistema que permita
-'memorizar' la profundidad que alcanzamos en cada momento, es decir, que
-contabilice el número de paréntesis abiertos menos el de cerrados. Esta falta de
-memoria nos impide saber cuándo los paréntesis han sido cerrados correctamente.
+Como se puede observar, la respuesta dada para los paréntesis anidados recrea
+la estructura de los mismos manualmente (en la expresión se puede ver cómo se
+abren dos niveles y luego se cierran). Es evidente que esto no se puede aplicar
+para una profundidad infinita, ya que la expresión nunca terminaría (o debería
+ser una expresión recurrente). El motivo por el que tampoco es posible
+recrearlo por otros métodos es que las expresiones regulares carecen de un
+sistema que permita 'memorizar' la profundidad que se alcanza en cada momento,
+es decir, que contabilice el número de paréntesis abiertos menos el de
+cerrados. Esta falta de memoria impide saber cuándo los paréntesis han sido
+cerrados correctamente.
 
 """
