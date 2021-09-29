@@ -32,17 +32,17 @@ class FiniteAutomatonEvaluator(
     def _complete_lambdas(self, set_to_complete: Set[State]) -> None:
         new_states: AbstractSet[_State]
         new_states = set()
-
-        if len(set_to_complete) == 0:
-            return
+        tam = len(set_to_complete)
 
         for state in set_to_complete:
             for transition in self.automaton.transitions:
                 if transition.initial_state == state and transition.symbol is None:
                     new_states.add(transition.final_state)
-        
-        self._complete_lambdas(new_states)
+
         set_to_complete.update(new_states)
+
+        if len(set_to_complete) != tam:
+            self._complete_lambdas(set_to_complete)
 
 
     def is_accepting(self) -> bool:
