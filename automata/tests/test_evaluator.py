@@ -110,6 +110,31 @@ class TestEvaluatorLambdas(TestEvaluatorBase):
         self._check_accept("", should_accept=True)
         self._check_accept("a", exception=ValueError)
 
+class TestEvaluatorLoopingLambdas(TestEvaluatorLambdas):
+    """Test for lambda transitions loops."""
+
+    def _create_automata(self) -> FiniteAutomaton:
+
+        description = """
+        Automaton:
+            Symbols:
+
+            1
+            2
+            3
+            4 final
+
+            --> 1
+            1 --> 2
+            2 --> 1
+            2 --> 3
+            3 --> 1
+            3 --> 4
+        """
+
+        return AutomataFormat.read(description)
+
+
 
 class TestEvaluatorNumber(TestEvaluatorBase):
     """Test for a fixed string."""
