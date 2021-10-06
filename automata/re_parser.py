@@ -1,6 +1,7 @@
 """Conversion from regex to automata."""
 from automata.automaton import FiniteAutomaton, State, Transition
 from automata.re_parser_interfaces import AbstractREParser
+from typing import Collection
 
 
 class REParser(AbstractREParser):
@@ -10,10 +11,13 @@ class REParser(AbstractREParser):
         self,
     ) -> FiniteAutomaton:
         q0: State
-        q0 = State('q0', is_final=True)
+        q0 = State('q0', is_final=False)
+
+        qf: State
+        qf = State('qf', is_final=True)
 
         aut: FiniteAutomaton
-        aut = FiniteAutomaton(initial_state=q0, states={q0}, symbols=set(),
+        aut = FiniteAutomaton(initial_state=q0, states={q0, qf}, symbols=set(),
                               transitions=set())
         return aut
 
@@ -27,7 +31,7 @@ class REParser(AbstractREParser):
 
         aut: FiniteAutomaton
         aut = FiniteAutomaton(initial_state=q0, states={q0, qf},
-                              symbols={None},
+                              symbols=set(),
                               transitions={Transition(q0, None, qf)})
         return aut
 
@@ -42,7 +46,7 @@ class REParser(AbstractREParser):
 
         aut: FiniteAutomaton
         aut = FiniteAutomaton(initial_state=q0, states={q0, qf},
-                              symbols={None, symbol},
+                              symbols={symbol},
                               transitions={Transition(q0, symbol, qf)})
         return aut
 
@@ -57,10 +61,10 @@ class REParser(AbstractREParser):
         states = set()
         transitions: Collection[Transition]
         transitions = set()
-        i = 0
+        self.state_counter = 0
         for state in automaton.states:
-            i += 1
-            state.name = 'q' + str(i)
+            self.state_counter += 1
+            state.name = 'q' + str(self.state_counter)
             states.add(state)
             if state.is_final:
                 transitions.add(Transition(state, None,
@@ -95,16 +99,16 @@ class REParser(AbstractREParser):
         symbols: Collection[str]
         symbols = set()
 
-        i = 0
+        self.state_counter = 0
         for state in automaton1.states:
-            i += 1
-            state.name = 'q' + str(i)
+            self.state_counter += 1
+            state.name = 'q' + str(self.state_counter)
             states.add(state)
             if state.is_final:
                 transitions.add(Transition(state, None, qf))
         for state in automaton2.states:
-            i += 1
-            state.name = 'q' + str(i)
+            self.state_counter += 1
+            state.name = 'q' + str(self.state_counter)
             states.add(state)
             if state.is_final:
                 transitions.add(Transition(state, None, qf))
@@ -141,18 +145,18 @@ class REParser(AbstractREParser):
         symbols: Collection[str]
         symbols = set()
 
-        i = 0
+        self.state_counter = 0
         for state in automaton1.states:
-            i += 1
-            state.name = 'q' + str(i)
+            self.state_counter += 1
+            state.name = 'q' + str(self.state_counter)
             if state.is_final:
                 transitions.add(Transition(state, None,
                                            automaton2.initial_state))
                 state.is_final = False
             states.add(state)
         for state in automaton2.states:
-            i += 1
-            state.name = 'q' + str(i)
+            self.state_counter += 1
+            state.name = 'q' + str(self.state_counter)
             states.add(state)
 
         for transition in automaton1.transitions:

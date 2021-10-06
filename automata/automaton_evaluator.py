@@ -11,7 +11,7 @@ class FiniteAutomatonEvaluator(
     """Evaluator of an automaton."""
 
     def process_symbol(self, symbol: str) -> None:
-        next_states: Set[_State]
+        next_states: Set[State]
         next_states = set()
 
         if symbol is not None and symbol not in self.automaton.symbols:
@@ -30,7 +30,7 @@ class FiniteAutomatonEvaluator(
 
 
     def _complete_lambdas(self, set_to_complete: Set[State]) -> None:
-        new_states: Set[_State]
+        new_states: Set[State]
         new_states = set()
         tam = len(set_to_complete)
 
