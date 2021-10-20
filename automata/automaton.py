@@ -61,7 +61,20 @@ class FiniteAutomaton(
             self._complete_lambdas(set_to_complete)
 
     def _new_states(self, orgin_set: Set[State], symbol: str) -> Set[State]:
-        raise NotImplementedError("This method must be implemented.")
+        '''
+        Devuelve el conjunto de estados a los que se puede llegar con el
+        símbolo dado a partir del conjunto de estados actuales.
+        '''
+        new_states: Set[State]
+        new_states = set()
+
+        for state in origin_set:
+            for transition in state.transitions:
+                if transition.symbol == symbol:
+                    new_states.add(transition.final_state)
+
+        self._complete_lambdas(new_states)
+        return new_states
 
     def to_deterministic(
         self,
@@ -69,22 +82,25 @@ class FiniteAutomaton(
         deterministic: FiniteAutomaton
         new_names: Dict[Set[State], str]
         evaluate: List[State]
+        transitions: Set[Transition]
 
-        tag = 0
         initial_set = self._complete_lambdas({self.initial_state})
-        new_names = {}
+        new_names = {initial_set: "Q0"}
+        tag = 1
         evaluate = [initial_set]
-        flag = True
+        transitions = set()
 
         while evaluate:
             current_state = evaluate.pop()
-            if current_state not in new_names:
-                new_names[current_state] = f"Q{tag}"
-                tag += 1
 
             for symbol in self.symbols:
                 next_state = self._next_states(current_state, symbol)
+                if next_state not in new_names:
+                    new_names[next_state] = f"Q{tag}"
+                    tag += 1
+                    evaluate.push(next_state)
 
+                transitions.add(Transition(current_state, symbol, next_state))
 
         deterministic = FiniteAutomaton()
         raise NotImplementedError("This method must be implemented.")
