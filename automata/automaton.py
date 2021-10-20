@@ -52,7 +52,8 @@ class FiniteAutomaton(
 
         for state in set_to_complete:
             for transition in self.transitions:
-                if transition.initial_state == state and transition.symbol is None:
+                if (transition.initial_state == state
+                        and transition.symbol is None):
                     new_states.add(transition.final_state)
 
         set_to_complete.update(new_states)
@@ -76,13 +77,32 @@ class FiniteAutomaton(
         self._complete_lambdas(new_states)
         return new_states
 
+    def _set_has_final_state(self, state_set: Set[State]) -> bool:
+        '''
+        Devuelve True si alguno de los estados del conjunto es final
+        '''
+        for state in state_set:
+            if state.is_final:
+                return True
+        return False
+
     def to_deterministic(
-        self,
-    ) -> "FiniteAutomaton":
+            self,
+            ) -> "FiniteAutomaton":
         deterministic: FiniteAutomaton
         new_names: Dict[Set[State], str]
         evaluate: List[State]
-        transitions: Set[Transition]
+        transitions: Set[Tuple[State, Optional[str], State]]
+        new_states: Set[State]            # Los estados del nuevo autómata
+        new_transitions: Set[Transition]  # Las transiciones del nuevo autómata
+        initial_set: Set[State]
+        current_set: Set[State]
+        next_set: Set[State]
+        initial_state: State
+        current_state: State
+        next_state: State
+        tag: int
+        is_final: bool
 
         initial_set = self._complete_lambdas({self.initial_state})
         new_names = {initial_set: "Q0"}
@@ -91,19 +111,41 @@ class FiniteAutomaton(
         transitions = set()
 
         while evaluate:
-            current_state = evaluate.pop()
-
+            current_set = evaluate.pop()
             for symbol in self.symbols:
-                next_state = self._next_states(current_state, symbol)
-                if next_state not in new_names:
-                    new_names[next_state] = f"Q{tag}"
+                next_set = self._next_states(current_state, symbol)
+                if next_set not in new_names:
+                    new_names[next_set] = f"Q{tag}"
                     tag += 1
-                    evaluate.push(next_state)
+                    evaluate.push(next_set)
 
-                transitions.add(Transition(current_state, symbol, next_state))
+                transitions.add((current_set, symbol, next_set))
 
-        deterministic = FiniteAutomaton()
-        raise NotImplementedError("This method must be implemented.")
+        new_states = set()
+        new_transitions = set()
+
+        is_final = self._set_has_final_state(initial_set)
+        initial_state = State(new_names[initial_set], is_final=is_final)
+        new_states.add(initial_state)
+        for transition in transitions:
+            current_set = transition[0]
+            next_set = transition[2]
+
+            is_final = self._set_has_final_state(current_set)
+            current_state = State(new_names[current_set], is_final=is_final)
+            new_states.add(current_state)
+
+            is_final = self._set_has_final_state(next_set)
+            next_state = State(new_names[next_set], is_final=is_final)
+            new_states.add(next_state)
+
+            new_transitions.add(Transition(current_state, transition[1],
+                                           next_state))
+
+        return FiniteAutomaton(initial_state=initial_state,
+                               states=new_states,
+                               symbols=self.symbols,
+                               transitions=new_transitions)
 
     def to_minimized(
         self,
