@@ -1,5 +1,5 @@
 """Automaton implementation."""
-from typing import Collection, Set, Dict, List
+from typing import Collection, Set, FrozenSet, Dict, List, Tuple, Optional
 
 from automata.interfaces import (
     AbstractFiniteAutomaton,
@@ -61,7 +61,8 @@ class FiniteAutomaton(
         if len(set_to_complete) != tam:
             self._complete_lambdas(set_to_complete)
 
-    def _new_states(self, orgin_set: Set[State], symbol: str) -> Set[State]:
+    def _new_states(self, origin_set: FrozenSet[State],
+                    symbol: str) -> FrozenSet[State]:
         '''
         Devuelve el conjunto de estados a los que se puede llegar con el
         símbolo dado a partir del conjunto de estados actuales.
@@ -70,14 +71,14 @@ class FiniteAutomaton(
         new_states = set()
 
         for state in origin_set:
-            for transition in state.transitions:
+            for transition in self.transitions:
                 if transition.symbol == symbol:
                     new_states.add(transition.final_state)
 
         self._complete_lambdas(new_states)
-        return new_states
+        return frozenset(new_states)    # Inmutable y hasheable
 
-    def _set_has_final_state(self, state_set: Set[State]) -> bool:
+    def _set_has_final_state(self, state_set: FrozenSet[State]) -> bool:
         '''
         Devuelve True si alguno de los estados del conjunto es final
         '''
@@ -90,21 +91,25 @@ class FiniteAutomaton(
             self,
             ) -> "FiniteAutomaton":
         deterministic: FiniteAutomaton
-        new_names: Dict[Set[State], str]
-        evaluate: List[State]
-        transitions: Set[Tuple[State, Optional[str], State]]
+        new_names: Dict[FrozenSet[State], str]
+        evaluate: List[FrozenSet[State]]
+        transitions: (Set[Tuple[FrozenSet[State], Optional[str],
+                                FrozenSet[State]]])
         new_states: Set[State]            # Los estados del nuevo autómata
         new_transitions: Set[Transition]  # Las transiciones del nuevo autómata
-        initial_set: Set[State]
-        current_set: Set[State]
-        next_set: Set[State]
+        melted_initial_set: Set[State]
+        initial_set: FrozenSet[State]
+        current_set: FrozenSet[State]
+        next_set: FrozenSet[State]
         initial_state: State
         current_state: State
         next_state: State
         tag: int
         is_final: bool
 
-        initial_set = self._complete_lambdas({self.initial_state})
+        melted_initial_set = {self.initial_state}
+        self._complete_lambdas(melted_initial_set)
+        initial_set = frozenset(melted_initial_set)
         new_names = {initial_set: "Q0"}
         tag = 1
         evaluate = [initial_set]
@@ -113,11 +118,11 @@ class FiniteAutomaton(
         while evaluate:
             current_set = evaluate.pop()
             for symbol in self.symbols:
-                next_set = self._next_states(current_state, symbol)
+                next_set = self._new_states(current_set, symbol)
                 if next_set not in new_names:
                     new_names[next_set] = f"Q{tag}"
                     tag += 1
-                    evaluate.push(next_set)
+                    evaluate.append(next_set)
 
                 transitions.add((current_set, symbol, next_set))
 
