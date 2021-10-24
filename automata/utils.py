@@ -224,6 +224,9 @@ def deterministic_automata_isomorphism(
         equiv_state = equiv_map.get(state1)
         if equiv_state:
             if equiv_state is not state2:
+                print(f"{equiv_state}, {id(equiv_state)}")
+                print(f"{state2}, {id(state2)}")
+                print(equiv_state == state2)
                 return None
 
         else:

@@ -72,7 +72,8 @@ class FiniteAutomaton(
 
         for state in origin_set:
             for transition in self.transitions:
-                if transition.symbol == symbol:
+                if (transition.initial_state == state
+                        and transition.symbol == symbol):
                     new_states.add(transition.final_state)
 
         self._complete_lambdas(new_states)
