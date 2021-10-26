@@ -92,12 +92,9 @@ class FiniteAutomaton(
             self,
             ) -> "FiniteAutomaton":
         deterministic: FiniteAutomaton
-        new_names: Dict[FrozenSet[State], str]
+        new_states: Dict[FrozenSet[State], str]  # Estados del nuevo automata como valor
         evaluate: List[FrozenSet[State]]
-        transitions: (Set[Tuple[FrozenSet[State], Optional[str],
-                                FrozenSet[State]]])
-        new_states: Set[State]            # Los estados del nuevo autómata
-        new_transitions: Set[Transition]  # Las transiciones del nuevo autómata
+        transitions: Set[Transition]  # Transiciones del nuevo automata
         melted_initial_set: Set[State]
         initial_set: FrozenSet[State]
         current_set: FrozenSet[State]
@@ -111,7 +108,9 @@ class FiniteAutomaton(
         melted_initial_set = {self.initial_state}
         self._complete_lambdas(melted_initial_set)
         initial_set = frozenset(melted_initial_set)
-        new_names = {initial_set: "Q0"}
+        is_final = self._set_has_final_state(initial_set)
+        initial_state = State("Q0", is_final=is_final)
+        new_states = {initial_set: initial_state}
         tag = 1
         evaluate = [initial_set]
         transitions = set()
@@ -120,38 +119,19 @@ class FiniteAutomaton(
             current_set = evaluate.pop()
             for symbol in self.symbols:
                 next_set = self._new_states(current_set, symbol)
-                if next_set not in new_names:
-                    new_names[next_set] = f"Q{tag}"
+                if next_set not in new_states:
+                    is_final = self._set_has_final_state(next_set)
+                    next_state = State(f"Q{tag}", is_final=is_final)
+                    new_states[next_set] = next_state
                     tag += 1
                     evaluate.append(next_set)
 
-                transitions.add((current_set, symbol, next_set))
-
-        new_states = set()
-        new_transitions = set()
-
-        is_final = self._set_has_final_state(initial_set)
-        initial_state = State(new_names[initial_set], is_final=is_final)
-        new_states.add(initial_state)
-        for transition in transitions:
-            current_set = transition[0]
-            next_set = transition[2]
-
-            is_final = self._set_has_final_state(current_set)
-            current_state = State(new_names[current_set], is_final=is_final)
-            new_states.add(current_state)
-
-            is_final = self._set_has_final_state(next_set)
-            next_state = State(new_names[next_set], is_final=is_final)
-            new_states.add(next_state)
-
-            new_transitions.add(Transition(current_state, transition[1],
-                                           next_state))
+                transitions.add(Transition(new_states[current_set], symbol, new_states[next_set]))
 
         return FiniteAutomaton(initial_state=initial_state,
-                               states=new_states,
+                               states=new_states.values(),
                                symbols=self.symbols,
-                               transitions=new_transitions)
+                               transitions=transitions)
 
     def to_minimized(
         self,
