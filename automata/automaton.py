@@ -1,5 +1,5 @@
 """Automaton implementation."""
-from typing import Collection, Set, FrozenSet, Dict, List, Tuple, Optional
+from typing import Collection, Set, FrozenSet, Dict, List
 
 from automata.interfaces import (
     AbstractFiniteAutomaton,
@@ -92,9 +92,11 @@ class FiniteAutomaton(
             self,
             ) -> "FiniteAutomaton":
         deterministic: FiniteAutomaton
-        new_states: Dict[FrozenSet[State], State]  # Estados del nuevo automata como valor
+        # Estados del nuevo automata como valor
+        new_states: Dict[FrozenSet[State], State]
         evaluate: List[FrozenSet[State]]
-        transitions: Set[Transition]  # Transiciones del nuevo automata
+        # Transiciones del nuevo automata
+        transitions: Set[Transition]
         melted_initial_set: Set[State]
         initial_set: FrozenSet[State]
         current_set: FrozenSet[State]
@@ -126,7 +128,8 @@ class FiniteAutomaton(
                     tag += 1
                     evaluate.append(next_set)
 
-                transitions.add(Transition(new_states[current_set], symbol, new_states[next_set]))
+                transitions.add(Transition(new_states[current_set],
+                                           symbol, new_states[next_set]))
 
         return FiniteAutomaton(initial_state=initial_state,
                                states=new_states.values(),
