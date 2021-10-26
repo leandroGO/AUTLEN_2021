@@ -92,7 +92,7 @@ class FiniteAutomaton(
             self,
             ) -> "FiniteAutomaton":
         deterministic: FiniteAutomaton
-        new_states: Dict[FrozenSet[State], str]  # Estados del nuevo automata como valor
+        new_states: Dict[FrozenSet[State], State]  # Estados del nuevo automata como valor
         evaluate: List[FrozenSet[State]]
         transitions: Set[Transition]  # Transiciones del nuevo automata
         melted_initial_set: Set[State]
