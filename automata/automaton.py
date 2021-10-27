@@ -7,6 +7,8 @@ from automata.interfaces import (
     AbstractTransition,
 )
 
+from automata.utils import AutomataFormat
+
 
 class State(AbstractState):
     """State of an automaton."""
@@ -136,7 +138,60 @@ class FiniteAutomaton(
                                symbols=self.symbols,
                                transitions=transitions)
 
+    def _process_symbol(self, state, symbol):
+        '''
+        Devuelve el valor de la función de transición del AFD.
+        '''
+        for dest in self.states:
+            for transition in self.transitions:
+                if transition.initial_state == state and transition.symbol == symbol:
+                    return dest
+
+    def _remove_inaccessible(self):
+        '''
+        Elimina estados inaccesibles de un AFD.
+        '''
+        evaluate = [self.initial_state]
+        accessible = {self.initial_state}
+        new_transitions = []
+
+        while evaluate:
+            current_state = evaluate.pop()
+            for symbol in self.symbols:
+                next_state = self._process_symbol(current_state, symbol)
+                if next_state not in accessible:
+                    accessible.add(next_state)
+                    evaluate.append(next_state)
+        
+        for transition in self.transitions:
+            if transition.initial_state in accessible:
+                new_transitions.append(transition)
+        
+        return FiniteAutomaton(initial_state=self.initial_state,
+                               states=accessible,
+                               symbols=self.symbols,
+                               transitions=new_transitions)
+
+
     def to_minimized(
         self,
     ) -> "FiniteAutomaton":
-        raise NotImplementedError("This method must be implemented.")
+        if not AutomataFormat.is_deterministic(self):
+            raise ValueError("Automaton is not deterministic")
+
+        automaton = self._remove_inaccessible()
+
+        tag = 0
+        change = True
+        l = len(automaton.states)
+        list1 = [1 if state.is_final else 0 for state in automaton.states]
+        list2 = [None] * l
+
+        while change:
+            change = False
+            while None in list2:
+                idx = list1.index(None)
+                list2[idx] = tag
+                for i in range(idx + 1, l):
+                    if list2[i] and list1[idx] == list1[i]:
+
