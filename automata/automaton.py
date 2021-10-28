@@ -180,6 +180,7 @@ class FiniteAutomaton(
             raise ValueError("Automaton is not deterministic")
 
         automaton = self._remove_inaccessible()
+        states = [state for state in automaton.states]
 
         tag = 0
         change = True
@@ -188,10 +189,39 @@ class FiniteAutomaton(
         list2 = [None] * l
 
         while change:
-            change = False
             while None in list2:
                 idx = list1.index(None)
                 list2[idx] = tag
                 for i in range(idx + 1, l):
-                    if list2[i] and list1[idx] == list1[i]:
+                    if not list2[i] and list1[idx] == list1[i]:
+                        list2[i] = tag
+                        for symbol in automaton.symbols:
+                            i1 = states.index(automaton._process_symbol(states[idx], symbol))
+                            i2 = states.index(automaton._process_symbol(states[i], symbol))
+                            if list1[i1] != list1[i2]:
+                                list2[i] = None
+                                break
+                tag += 1
+            change = list1 == list2
+            swap = list1
+            list1 = list2
+            list2 = list1
 
+        elim = set()
+        new_transitions = [transition for transition in automaton.transitions]
+        for i in range(l):
+            for j in range(i+1, l):
+                if list1[i] == list1[j]:
+                    elim.append(states[j])
+                    for transition in new_transitions:
+                        if transition.initial_state == states[j]:
+                            new_transitions.remove(transition)
+                        elif transition.final_state == states[j]:
+                            transition.final_state = states[i]
+
+        for elem in elim:
+            states.remove(elem)
+
+        return FiniteAutomaton(initial_state=automaton.initial_state,
+                               states=states, symbols=automaton.symbols,
+                               transitions=new_transitions)
