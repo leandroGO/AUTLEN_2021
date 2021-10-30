@@ -1,5 +1,5 @@
 """Automaton implementation."""
-from typing import Collection, Set, FrozenSet, Dict, List
+from typing import Collection, Set, FrozenSet, Dict, List, Optional
 
 from automata.interfaces import (
     AbstractFiniteAutomaton,
@@ -7,7 +7,7 @@ from automata.interfaces import (
     AbstractTransition,
 )
 
-from automata.utils import AutomataFormat
+from automata.utils import is_deterministic
 
 
 class State(AbstractState):
@@ -94,10 +94,10 @@ class FiniteAutomaton(
             self,
             ) -> "FiniteAutomaton":
         deterministic: FiniteAutomaton
-        # Estados del nuevo automata como valor
+        # Estados del nuevo autómata como valor
         new_states: Dict[FrozenSet[State], State]
         evaluate: List[FrozenSet[State]]
-        # Transiciones del nuevo automata
+        # Transiciones del nuevo autómata
         transitions: Set[Transition]
         melted_initial_set: Set[State]
         initial_set: FrozenSet[State]
@@ -138,19 +138,32 @@ class FiniteAutomaton(
                                symbols=self.symbols,
                                transitions=transitions)
 
-    def _process_symbol(self, state, symbol):
+    def _process_symbol(self, state: State, symbol: str) -> State:
         '''
         Devuelve el valor de la función de transición del AFD.
         '''
-        for dest in self.states:
-            for transition in self.transitions:
-                if transition.initial_state == state and transition.symbol == symbol:
-                    return dest
+        if not is_deterministic(self):  # Just in case
+            raise ValueError("Automaton is not deterministic")
 
-    def _remove_inaccessible(self):
+        for transition in self.transitions:
+            if (transition.initial_state == state
+                    and transition.symbol == symbol):
+                return transition.final_state
+        raise ValueError("Automaton is not complete")
+
+    def _remove_inaccessible(self) -> FiniteAutomaton:
         '''
         Elimina estados inaccesibles de un AFD.
         '''
+        evaluate: List[State]
+        accesible: Set[State]
+        new_transitions: List[Transition]
+        current_state: State
+        new_state: State
+
+        if not is_deterministic(self):
+            raise ValueError("Automaton is not deterministic")
+
         evaluate = [self.initial_state]
         accessible = {self.initial_state}
         new_transitions = []
@@ -162,11 +175,11 @@ class FiniteAutomaton(
                 if next_state not in accessible:
                     accessible.add(next_state)
                     evaluate.append(next_state)
-        
+
         for transition in self.transitions:
             if transition.initial_state in accessible:
                 new_transitions.append(transition)
-        
+
         return FiniteAutomaton(initial_state=self.initial_state,
                                states=accessible,
                                symbols=self.symbols,
@@ -176,43 +189,59 @@ class FiniteAutomaton(
     def to_minimized(
         self,
     ) -> "FiniteAutomaton":
-        if not AutomataFormat.is_deterministic(self):
+        automaton: FiniteAutomaton
+        states: List[State]
+        tag: int
+        change: bool
+        n_states: int
+        list1: List[Optional[int]]
+        list2: List[Optional[int]]
+        idx: int
+        i1: int
+        i2: int
+        elim: Set[State]
+        new_transitions: List[Transition]
+
+        if not is_deterministic(self):
             raise ValueError("Automaton is not deterministic")
 
         automaton = self._remove_inaccessible()
-        states = [state for state in automaton.states]
+        states = list(automaton.states).copy()
 
         tag = 0
         change = True
-        l = len(automaton.states)
-        list1 = [1 if state.is_final else 0 for state in automaton.states]
-        list2 = [None] * l
+        n_states = len(automaton.states)
+        list1 = [int(state.is_final) for state in automaton.states]
+        list2 = [None] * n_states
 
         while change:
             while None in list2:
                 idx = list1.index(None)
                 list2[idx] = tag
-                for i in range(idx + 1, l):
+                for i in range(idx + 1, n_states):
                     if not list2[i] and list1[idx] == list1[i]:
                         list2[i] = tag
                         for symbol in automaton.symbols:
-                            i1 = states.index(automaton._process_symbol(states[idx], symbol))
-                            i2 = states.index(automaton._process_symbol(states[i], symbol))
+                            i1 = states.index(
+                                    automaton._process_symbol(states[idx],
+                                                              symbol))
+                            i2 = states.index(
+                                    automaton._process_symbol(states[i],
+                                                              symbol))
                             if list1[i1] != list1[i2]:
                                 list2[i] = None
                                 break
                 tag += 1
-            change = list1 == list2
-            swap = list1
+            change = (list1 == list2)
             list1 = list2
-            list2 = list1
+            list2 = [None] * n_states
 
         elim = set()
-        new_transitions = [transition for transition in automaton.transitions]
-        for i in range(l):
-            for j in range(i+1, l):
+        new_transitions = list(automaton.transitions).copy()
+        for i in range(n_states):
+            for j in range(i + 1, n_states):
                 if list1[i] == list1[j]:
-                    elim.append(states[j])
+                    elim.add(states[j])
                     for transition in new_transitions:
                         if transition.initial_state == states[j]:
                             new_transitions.remove(transition)
