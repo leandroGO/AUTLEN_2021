@@ -274,6 +274,33 @@ class TestTransform(ABC, unittest.TestCase):
 
         self._check_transform(automaton, expected)
 
+    def test_case6(self) -> None:
+        """Test Case 6.
+        Un AFD que acepta cadenas de {0,1}* que terminan en 0.
+
+        Este test comprueba que transforma AFD en ellos mismos.
+        """
+        automaton_str = """
+        Automaton:
+            Symbols: 01
+
+            q0
+            qf final
+
+            --> q0
+            q0 -0-> qf
+            q0 -1-> q0
+            qf -0-> qf
+            qf -1-> q0
+        """
+
+        automaton = AutomataFormat.read(automaton_str)
+
+        expected_str = automaton_str
+
+        expected = AutomataFormat.read(expected_str)
+
+        self._check_transform(automaton, expected)
 
 if __name__ == '__main__':
     unittest.main()

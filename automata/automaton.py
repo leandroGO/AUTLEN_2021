@@ -183,6 +183,7 @@ class FiniteAutomaton(
     ) -> "FiniteAutomaton":
         automaton: FiniteAutomaton
         states: List[State]
+        aux: State
         tag: int
         change: bool
         n_states: int
@@ -196,16 +197,20 @@ class FiniteAutomaton(
 
         automaton = self._remove_inaccessible()
         states = list(automaton.states).copy()
+        idx = states.index(automaton.initial_state)
+        aux = states[idx]           # El estado inicial es el primero
+        states[idx] = states[0]     # (así aseguramos que no se elimina)
+        states[0] = aux
 
-        tag = 0
         change = True
         n_states = len(automaton.states)
-        list1 = [int(state.is_final) for state in automaton.states]
-        list2 = [None] * n_states
+        list1 = [int(state.is_final != states[0].is_final) for state in states]
 
         while change:
+            tag = 0
+            list2 = [None] * n_states
             while None in list2:
-                idx = list1.index(None)
+                idx = list2.index(None)
                 list2[idx] = tag
                 for i in range(idx + 1, n_states):
                     if not list2[i] and list1[idx] == list1[i]:
@@ -221,9 +226,8 @@ class FiniteAutomaton(
                                 list2[i] = None
                                 break
                 tag += 1
-            change = (list1 == list2)
+            change = (list1 != list2)
             list1 = list2
-            list2 = [None] * n_states
 
         elim = set()
         new_transitions = list(automaton.transitions).copy()
@@ -233,8 +237,8 @@ class FiniteAutomaton(
                     elim.add(states[j])
                     for transition in new_transitions:
                         if transition.initial_state == states[j]:
-                            new_transitions.remove(transition)
-                        elif transition.final_state == states[j]:
+                            transition.initial_state = states[i]
+                        if transition.final_state == states[j]:
                             transition.final_state = states[i]
 
         for elem in elim:
@@ -242,4 +246,4 @@ class FiniteAutomaton(
 
         return FiniteAutomaton(initial_state=automaton.initial_state,
                                states=states, symbols=automaton.symbols,
-                               transitions=new_transitions)
+                               transitions=set(new_transitions))
