@@ -7,8 +7,6 @@ from automata.interfaces import (
     AbstractTransition,
 )
 
-from automata.utils import is_deterministic
-
 
 class State(AbstractState):
     """State of an automaton."""
@@ -142,16 +140,13 @@ class FiniteAutomaton(
         '''
         Devuelve el valor de la función de transición del AFD.
         '''
-        if not is_deterministic(self):  # Just in case
-            raise ValueError("Automaton is not deterministic")
-
         for transition in self.transitions:
             if (transition.initial_state == state
                     and transition.symbol == symbol):
                 return transition.final_state
         raise ValueError("Automaton is not complete")
 
-    def _remove_inaccessible(self) -> FiniteAutomaton:
+    def _remove_inaccessible(self) -> "FiniteAutomaton":
         '''
         Elimina estados inaccesibles de un AFD.
         '''
@@ -160,9 +155,6 @@ class FiniteAutomaton(
         new_transitions: List[Transition]
         current_state: State
         new_state: State
-
-        if not is_deterministic(self):
-            raise ValueError("Automaton is not deterministic")
 
         evaluate = [self.initial_state]
         accessible = {self.initial_state}
@@ -201,9 +193,6 @@ class FiniteAutomaton(
         i2: int
         elim: Set[State]
         new_transitions: List[Transition]
-
-        if not is_deterministic(self):
-            raise ValueError("Automaton is not deterministic")
 
         automaton = self._remove_inaccessible()
         states = list(automaton.states).copy()
