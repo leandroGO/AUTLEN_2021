@@ -177,6 +177,97 @@ class TestTransform(ABC, unittest.TestCase):
 
         self._check_transform(automaton, expected)
 
+    def test_case4(self) -> None:
+        """Test Case 4.
+        Un AFD mínimo que acepta cadenas de {0,1}* que terminan en 0, añadiendo
+        un estado inaccesible.
+
+        Este test comprueba que se eliminan los estados inaccesibles.
+        """
+        automaton_str = """
+        Automaton:
+            Symbols: 01
+
+            q0
+            qf final
+            inaccessible
+
+            --> q0
+            q0 -0-> qf
+            q0 -1-> q0
+            qf -0-> qf
+            qf -1-> q0
+            inaccessible -0-> q0
+            inaccessible -1-> qf
+        """
+
+        automaton = AutomataFormat.read(automaton_str)
+
+        expected_str = """
+        Automaton:
+            Symbols: 01
+
+            q0
+            qf final
+
+            --> q0
+            q0 -0-> qf
+            q0 -1-> q0
+            qf -0-> qf
+            qf -1-> q0
+        """
+
+        expected = AutomataFormat.read(expected_str)
+
+        self._check_transform(automaton, expected)
+
+    def test_case5(self) -> None:
+        """Test Case 5.
+        Un AFD mínimo que acepta cadenas de {0,1}* que terminan en 0, añadiendo
+        dos estados inaccesibles que son accesibles entre sí
+
+        Este test comprueba que se eliminan los estados inaccesibles.
+        """
+        automaton_str = """
+        Automaton:
+            Symbols: 01
+
+            q0
+            qf final
+            inaccessible1
+            inaccessible2
+
+            --> q0
+            q0 -0-> qf
+            q0 -1-> q0
+            qf -0-> qf
+            qf -1-> q0
+            inaccessible1 -0-> q0
+            inaccessible1 -1-> inaccessible2
+            inaccessible2 -0-> inaccessible1
+            inaccessible2 -1-> inaccessible2
+        """
+
+        automaton = AutomataFormat.read(automaton_str)
+
+        expected_str = """
+        Automaton:
+            Symbols: 01
+
+            q0
+            qf final
+
+            --> q0
+            q0 -0-> qf
+            q0 -1-> q0
+            qf -0-> qf
+            qf -1-> q0
+        """
+
+        expected = AutomataFormat.read(expected_str)
+
+        self._check_transform(automaton, expected)
+
 
 if __name__ == '__main__':
     unittest.main()

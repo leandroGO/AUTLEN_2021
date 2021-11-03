@@ -106,16 +106,14 @@ class TestTransform(ABC, unittest.TestCase):
 
     def test_case3(self) -> None:
         """Test Case 3.
-        Un AFN-lambda que reconoce las cadenas de {0,1}* conformadas
-        exclusivamente por unos y de longitud par, artificiosamente ampliado
-        con transiciones lambda.
+        Un AFN-lambda que reconoce las cadenas de {1}* de longitud par,
+        artificiosamente ampliado con transiciones lambda en bucle.
 
-        Este test comprueba lo que el anterior y que se genera un estado
-        sumidero para las cadenas que contienen algún cero.
+        Este test comprueba que se realiza la clausura-lambda correctamente.
         """
         automaton_str = """
         Automaton:
-            Symbols: 01
+            Symbols: 1
 
             q0
             q1
@@ -124,7 +122,7 @@ class TestTransform(ABC, unittest.TestCase):
 
             --> q0
             q0 --> q1
-            q0 --> q2
+            q2 --> q0
             q1 --> q2
             q2 -1-> q3
             q3 -1-> q2
@@ -134,22 +132,14 @@ class TestTransform(ABC, unittest.TestCase):
 
         expected_str = """
         Automaton:
-            Symbols: 01
+            Symbols: 1
 
             q0q1q2 final
-            q2 final
             q3
-            qe
 
             --> q0q1q2
             q0q1q2 -1-> q3
-            q3 -1-> q2
-            q2 -1-> q3
-            qe -1-> qe
-            q0q1q2 -0-> qe
-            q2 -0-> qe
-            q3 -0-> qe
-            qe -0-> qe
+            q3 -1-> q0q1q2
         """
 
         expected = AutomataFormat.read(expected_str)
@@ -164,7 +154,6 @@ class TestTransform(ABC, unittest.TestCase):
 
         Este test comprueba que el AFN-lambda de entrada puede tener varios
         estados de aceptación.
-        sumidero para las cadenas que contienen algún cero.
         """
         automaton_str = """
         Automaton:
