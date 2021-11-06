@@ -3,7 +3,16 @@ import unittest
 from abc import ABC
 
 from automata.automaton import FiniteAutomaton
-from automata.utils import AutomataFormat, deterministic_automata_isomorphism
+from automata.utils import (AutomataFormat, deterministic_automata_isomorphism,
+                            write_dot)
+
+def save_automata_dot(n_test: int, automaton: FiniteAutomaton) -> None:
+    return    # Comentar esta línea para generar los ficheros dot
+    with open(f'automata_dot/to_minimized_inicial_{n_test}.txt', 'w') as f:
+        print(write_dot(automaton), file=f)
+
+    with open(f'automata_dot/to_minimized_final_{n_test}.txt', 'w') as f:
+        print(write_dot(automaton.to_minimized()), file=f)
 
 
 class TestTransform(ABC, unittest.TestCase):
@@ -48,6 +57,7 @@ class TestTransform(ABC, unittest.TestCase):
         """
 
         automaton = AutomataFormat.read(automaton_str)
+        save_automata_dot(1, automaton)
 
         expected_str = """
         Automaton:
@@ -120,6 +130,7 @@ class TestTransform(ABC, unittest.TestCase):
         """
 
         automaton = AutomataFormat.read(automaton_str)
+        save_automata_dot(2, automaton)
 
         expected_str = """
         Automaton:
@@ -170,6 +181,7 @@ class TestTransform(ABC, unittest.TestCase):
         """
 
         automaton = AutomataFormat.read(automaton_str)
+        save_automata_dot(3, automaton)
 
         expected_str = automaton_str
 
@@ -202,6 +214,7 @@ class TestTransform(ABC, unittest.TestCase):
         """
 
         automaton = AutomataFormat.read(automaton_str)
+        save_automata_dot(4, automaton)
 
         expected_str = """
         Automaton:
@@ -249,6 +262,7 @@ class TestTransform(ABC, unittest.TestCase):
         """
 
         automaton = AutomataFormat.read(automaton_str)
+        save_automata_dot(5, automaton)
 
         expected_str = """
         Automaton:

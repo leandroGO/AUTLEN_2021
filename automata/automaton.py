@@ -175,7 +175,7 @@ class FiniteAutomaton(
         return FiniteAutomaton(initial_state=self.initial_state,
                                states=accessible,
                                symbols=self.symbols,
-                               transitions=new_transitions)
+                               transitions=set(new_transitions))
 
 
     def to_minimized(

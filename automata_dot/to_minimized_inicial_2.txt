@@ -1,0 +1,40 @@
+digraph {
+  rankdir=LR;
+
+  node [shape = point]; __start_point__
+  q0[shape=circle]
+  q1[shape=doublecircle]
+  q2[shape=circle]
+  q1r[shape=doublecircle]
+  q2r[shape=circle]
+  q1rr[shape=doublecircle]
+  q2rr[shape=circle]
+  qe[shape=circle]
+
+  __start_point__ -> q0
+  qe -> qe[label="c"]
+  q1r -> q2r[label="c"]
+  q1 -> q2[label="c"]
+  q0 -> q1[label="a"]
+  q2r -> q1r[label="c"]
+  q1 -> qe[label="b"]
+  q1rr -> qe[label="b"]
+  qe -> qe[label="b"]
+  q2rr -> qe[label="a"]
+  q2 -> q1[label="c"]
+  q1rr -> qe[label="a"]
+  q1 -> qe[label="a"]
+  q1rr -> q2rr[label="c"]
+  q2r -> qe[label="a"]
+  q1r -> qe[label="b"]
+  q2rr -> qe[label="b"]
+  qe -> qe[label="a"]
+  q0 -> q1rr[label="c"]
+  q2rr -> q1rr[label="c"]
+  q2 -> qe[label="a"]
+  q0 -> q1r[label="b"]
+  q1r -> qe[label="a"]
+  q2 -> qe[label="b"]
+  q2r -> qe[label="b"]
+}
+

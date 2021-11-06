@@ -1,0 +1,20 @@
+digraph {
+  rankdir=LR;
+
+  node [shape = point]; __start_point__
+  q0[shape=circle]
+  qf[shape=doublecircle]
+  inaccessible1[shape=circle]
+  inaccessible2[shape=circle]
+
+  __start_point__ -> q0
+  qf -> q0[label="1"]
+  qf -> qf[label="0"]
+  inaccessible2 -> inaccessible2[label="1"]
+  inaccessible2 -> inaccessible1[label="0"]
+  inaccessible1 -> q0[label="0"]
+  inaccessible1 -> inaccessible2[label="1"]
+  q0 -> qf[label="0"]
+  q0 -> q0[label="1"]
+}
+
