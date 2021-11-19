@@ -33,19 +33,21 @@ class ASTDotVisitor(ast.NodeVisitor):
 
         node_str = f's{self.n_node} [label = "{type(node).__name__}('
         node_args = ""
-        self.n_node += 1
-        if self.last_parent:
+        current = self.n_node
+        if self.last_parent is not None:
             print(f's{self.last_parent} -> s{self.n_node} [label = "{self.last_field_name}"]')
 
+        self.n_node += 1
         self.level += 1
-        self.last_parent = self.n_node
         for field, value in iter_fields(node):
             self.last_field_name = str(field)
             if isinstance(value, list):
                 for item in value:
                     if isinstance(item, ast.AST):
+                        self.last_parent = current
                         self.visit(item)
             elif isinstance(value, ast.AST):
+                self.last_parent = current
                 self.visit(value)
             else:
                 node_args += f'{field}={value!r}, '
@@ -53,7 +55,7 @@ class ASTDotVisitor(ast.NodeVisitor):
 
         self.level -= 1
         if node_args != "":
-            node_args = node_args[:-2]
+            node_args = node_args[:-2]  # Quita el último ', '
 
         print(node_str + node_args + ')"]')
 
