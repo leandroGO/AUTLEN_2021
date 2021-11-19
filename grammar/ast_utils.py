@@ -1,4 +1,7 @@
 import ast
+import inspect
+import types
+from typing import Union, List
 from ast import iter_fields
 import numbers
 
@@ -62,3 +65,36 @@ class ASTDotVisitor(ast.NodeVisitor):
         if self.level == 0:
             print("}")
 
+
+class ASTReplaceNum(ast.NodeTransformer):
+    def __init__(self, number:complex):
+        self.number = number
+
+    def visit_Num(self, node:ast.Num) -> ast.AST:
+        return ast.Num(n=self.number)
+
+    def visit_Constant(self, node:ast.Constant) -> ast.AST:
+        if isinstance(node.value, numbers.Number):
+            return ast.Constant(value=self.number)
+        return node
+
+
+def transform_code(f, transformer):
+    f_ast = ast.parse(inspect.getsource(f))
+
+    new_tree = ast.fix_missing_locations(transformer.visit(f_ast))
+
+    old_code = f.__code__
+    code = compile(new_tree, old_code.co_filename, 'exec')
+    new_f = types.FunctionType(code.co_consts[0], f.__globals__)
+
+    return new_f
+
+
+class ASTRemoveConstantIf(ast.NodeTransformer):
+    def visit_If(self, node: ast.If) -> Union[ast.AST, List[ast.stmt]]:
+        if isinstance(node.test, ast.NameConstant):
+            if node.test.value:
+                return node.body
+            return node.orelse
+        return node
