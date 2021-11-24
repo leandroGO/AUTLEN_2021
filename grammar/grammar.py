@@ -115,7 +115,7 @@ class Grammar:
             First set of str.
         """
 
-	# TO-DO: Complete this method for exercise 3...
+        # TODO: Complete this method for exercise 3...
 
 
     def compute_follow(self, symbol: str) -> AbstractSet[str]:
@@ -129,8 +129,8 @@ class Grammar:
             Follow set of symbol.
         """
 
-	# TO-DO: Complete this method for exercise 4...
-	
+        # TODO: Complete this method for exercise 4...
+
 
     def get_ll1_table(self) -> Optional[LL1Table]:
         """
@@ -140,7 +140,7 @@ class Grammar:
             LL(1) table for the grammar, or None if the grammar is not LL(1).
         """
 
-	# TO-DO: Complete this method for exercise 5...
+        # TODO: Complete this method for exercise 5...
 
 
     def is_ll1(self) -> bool:
@@ -270,17 +270,15 @@ class LL1Table:
         Raises:
             SyntaxError: if the input string is not syntactically correct.
         """
-        
-	# TODO: Complete this method for exercise 2...
+
         exp = [start]
         input = list(input_string)
         input.reverse()
         tree = ParseTree(start)
-        tree_stack = [tree]
+        tree_stack = [tree]     # ParserTree version of exp stack
 
         while len(exp) > 0 and len(input) > 0:
             current = exp.pop()
-            current_node = tree_stack.pop()
             if current in self.terminals:
                 if current == input[-1]:
                     input.pop()
@@ -294,16 +292,24 @@ class LL1Table:
                     aux = list(right_side)
                     aux.reverse()
                     exp.extend(aux)
-                    children = [ParseTree(ch) for ch in aux]
-                    tree_stack.extend(children) # TODO: Meter solo los nodos asociados a no terminales
-                    children.reverse()
+                    # Parser Tree
+                    current_node = tree_stack.pop()
+                    if len(aux) > 0:
+                        children = [ParseTree(ch) for ch in aux]
+                        non_terminal_idx = ([i for i in range(len(aux)) if
+                                             aux[i] in self.non_terminals])
+                        tree_stack.extend([children[i] for i in
+                                           non_terminal_idx])
+                        children.reverse()
+                    else:
+                        children = [ParseTree('λ')]
                     current_node.add_children(children)
 
         if len(exp) != 0 or input != ['$']:
-            raise SyntaxError("Mal")
+            raise SyntaxError("Ill-formed string")
 
         return tree
-    
+
 class ParseTree():
     """
     Parse Tree.
