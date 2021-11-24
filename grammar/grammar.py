@@ -271,9 +271,38 @@ class LL1Table:
             SyntaxError: if the input string is not syntactically correct.
         """
         
-	# TO-DO: Complete this method for exercise 2...
+	# TODO: Complete this method for exercise 2...
+        exp = [start]
+        input = list(input_string)
+        input.reverse()
+        tree = ParseTree(start)
+        tree_stack = [tree]
 
-        return ParseTree("") # Return an empty tree by default.
+        while len(exp) > 0 and len(input) > 0:
+            current = exp.pop()
+            current_node = tree_stack.pop()
+            if current in self.terminals:
+                if current == input[-1]:
+                    input.pop()
+                else:
+                    raise SyntaxError(f"Unexpected symbol {input[-1]}")
+            else:
+                right_side = self.cells.get((current, input[-1]), None)
+                if right_side is None:
+                    raise SyntaxError(f"Unexpected symbol {input[-1]}")
+                else:
+                    aux = list(right_side)
+                    aux.reverse()
+                    exp.extend(aux)
+                    children = [ParseTree(ch) for ch in aux]
+                    tree_stack.extend(children) # TODO: Meter solo los nodos asociados a no terminales
+                    children.reverse()
+                    current_node.add_children(children)
+
+        if len(exp) != 0 or input != ['$']:
+            raise SyntaxError("Mal")
+
+        return tree
     
 class ParseTree():
     """
