@@ -33,6 +33,8 @@ class TestFollow(unittest.TestCase):
         self._check_follow(grammar, "T", {'$', ')', '+'})
         self._check_follow(grammar, "X", {'$', ')'})
         self._check_follow(grammar, "Y", {'$', ')', '+'})
+        with self.assertRaises(ValueError):
+            grammar.compute_follow("A")
 
 
 if __name__ == '__main__':

@@ -114,6 +114,10 @@ class Grammar:
         Returns:
             First set of str.
         """
+
+        return self._compute_first_rec(sentence, set())
+
+    def _compute_first_rec(self, sentence: str, visited: AbstractSet[str]) -> AbstractSet[str]:
         primeros = set()
 
         if sentence == "" or sentence is None:
@@ -125,7 +129,9 @@ class Grammar:
             if symbol in self.non_terminals:
                 for prod in self.productions:
                     if prod.left == symbol:
-                        primeros.update(self.compute_first(prod.right))
+                        if prod not in visited:
+                            visited.add(prod)
+                            primeros.update(self._compute_first_rec(prod.right, visited))
                 if "" not in primeros:
                     return primeros
                 primeros.remove("")
@@ -149,7 +155,13 @@ class Grammar:
             Follow set of symbol.
         """
 
+        return self._compute_follow_rec(symbol, set())
+
+    def _compute_follow_rec(self, symbol: str, visited: AbstractSet[str]) -> AbstractSet[str]:
         siguientes = set()
+
+        if symbol not in self.non_terminals:
+            raise ValueError("Invalid symbol")
 
         if symbol == self.axiom:
             siguientes.add('$')
@@ -162,8 +174,10 @@ class Grammar:
                 siguientes.update(self.compute_first(after))
             if "" in siguientes:
                 siguientes.remove("")
-                siguientes.update(self.compute_follow(prod.left))
-        
+                if prod.left not in visited:
+                    visited.add(prod.left)
+                    siguientes.update(self._compute_follow_rec(prod.left, visited))
+
         return siguientes
 
 

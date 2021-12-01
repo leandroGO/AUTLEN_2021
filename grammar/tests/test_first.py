@@ -42,6 +42,20 @@ class TestFirst(unittest.TestCase):
         with self.assertRaises(ValueError):
             grammar.compute_first("foo")
 
+    def test_case2(self) -> None:
+        """Test case 2 (for recursion)"""
+        grammar_str = """
+        E-> T
+        T-> EX
+        X -> x
+        E -> 
+        E -> e
+        """
+
+        grammar = GrammarFormat.read(grammar_str)
+        self._check_first(grammar, "E", {"e", "x"})
+        self._check_first(grammar, "T", {"e", "x"})
+        self._check_first(grammar, "X", {"x"})
 
 if __name__ == '__main__':
     unittest.main()
