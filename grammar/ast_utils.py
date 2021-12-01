@@ -93,8 +93,38 @@ def transform_code(f, transformer):
 
 class ASTRemoveConstantIf(ast.NodeTransformer):
     def visit_If(self, node: ast.If) -> Union[ast.AST, List[ast.stmt]]:
+        update_body = True
+        update_orelse = True
+
         if isinstance(node.test, ast.NameConstant):
             if node.test.value:
-                return node.body
-            return node.orelse
+                update_orelse = False
+            else:
+                update_body = False
+
+        new_body = []
+        if update_body:
+            for elem in node.body:
+                child = self.visit(elem)
+                if isinstance(child, ast.AST):
+                    new_body.append(child)
+                else:
+                    new_body.extend(child)
+            if not update_orelse:
+                return new_body
+
+
+        new_orelse = []
+        if update_orelse:
+            for elem in node.orelse:
+                child = self.visit(elem)
+                if isinstance(child, ast.AST):
+                    new_orelse.append(child)
+                else:
+                    new_orelse.extend(child)
+            if not update_body:
+                return new_orelse
+
+        node.body = new_body
+        node.orelse = new_orelse
         return node
