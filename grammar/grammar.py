@@ -114,8 +114,28 @@ class Grammar:
         Returns:
             First set of str.
         """
+        primeros = set()
 
-        # TODO: Complete this method for exercise 3...
+        if sentence == "" or sentence is None:
+            return set([""])
+        for symbol in sentence:
+            if symbol in self.terminals:
+                primeros.add(symbol)
+                return primeros
+            if symbol in self.non_terminals:
+                for prod in self.productions:
+                    if prod.left == symbol:
+                        primeros.update(self.compute_first(prod.right))
+                if "" not in primeros:
+                    return primeros
+                primeros.remove("")
+            else:
+                raise ValueError("Unexpected symbol found")
+
+        primeros.add("")
+        return primeros
+
+
 
 
     def compute_follow(self, symbol: str) -> AbstractSet[str]:
@@ -129,7 +149,22 @@ class Grammar:
             Follow set of symbol.
         """
 
-        # TODO: Complete this method for exercise 4...
+        siguientes = set()
+
+        if symbol == self.axiom:
+            siguientes.add('$')
+
+        for prod in self.productions:
+            after = prod.right
+            while symbol in after:
+                idx = after.index(symbol)
+                after = after[idx+1:]
+                siguientes.update(self.compute_first(after))
+            if "" in siguientes:
+                siguientes.remove("")
+                siguientes.update(self.compute_follow(prod.left))
+        
+        return siguientes
 
 
     def get_ll1_table(self) -> Optional[LL1Table]:

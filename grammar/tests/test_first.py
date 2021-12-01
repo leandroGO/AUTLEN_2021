@@ -38,6 +38,9 @@ class TestFirst(unittest.TestCase):
         self._check_first(grammar, "Y+i", {'+', '*'})
         self._check_first(grammar, "YX", {'+', '*', ''})
         self._check_first(grammar, "YXT", {'+', '*', 'i', '('})
+        self._check_first(grammar, "XT", {'+', '(', 'i'})
+        with self.assertRaises(ValueError):
+            grammar.compute_first("foo")
 
 
 if __name__ == '__main__':
