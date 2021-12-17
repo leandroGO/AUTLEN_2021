@@ -189,7 +189,23 @@ class Grammar:
             LL(1) table for the grammar, or None if the grammar is not LL(1).
         """
 
-        # TODO: Complete this method for exercise 5...
+        tabla = LL1Table(self.non_terminals, self.terminals, {})
+
+        for prod in self.productions:
+            for t in self.compute_first(prod.right):
+                if t == '':
+                    for s in self.compute_follow(prod.left):
+                        try:
+                            tabla.add_cell(TableCell(prod.left, s, prod.right))
+                        except:
+                            return None
+                else:
+                    try:
+                        tabla.add_cell(TableCell(prod.left, t, prod.right))
+                    except:
+                        return None
+        
+        return tabla
 
 
     def is_ll1(self) -> bool:
