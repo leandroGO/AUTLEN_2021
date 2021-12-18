@@ -36,6 +36,31 @@ class TestFollow(unittest.TestCase):
         with self.assertRaises(ValueError):
             grammar.compute_follow("A")
 
+    def test_case2(self) -> None:
+        """Test Case 2."""
+        grammar_str = """
+        A -> BCD
+        B ->
+        C -> a
+        C ->
+        D -> b
+        D ->
+        """
+        grammar = GrammarFormat.read(grammar_str)
+        self._check_follow(grammar, "A", {'$'})
+        self._check_follow(grammar, "B", {'a', 'b', '$'})
+        self._check_follow(grammar, "C", {'b', '$'})
+        self._check_follow(grammar, "D", {'$'})
+
+    def test_case3(self) -> None:
+        """Test Case 3."""
+        grammar_str = """
+        S -> aS
+        S ->
+        """
+        grammar = GrammarFormat.read(grammar_str)
+        self._check_follow(grammar, "S", {'$'})
+
 
 if __name__ == '__main__':
     unittest.main()

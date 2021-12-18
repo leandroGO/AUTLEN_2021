@@ -197,14 +197,14 @@ class Grammar:
                     for s in self.compute_follow(prod.left):
                         try:
                             tabla.add_cell(TableCell(prod.left, s, prod.right))
-                        except:
+                        except RepeatedCellError:
                             return None
                 else:
                     try:
                         tabla.add_cell(TableCell(prod.left, t, prod.right))
-                    except:
+                    except RepeatedCellError:
                         return None
-        
+
         return tabla
 
 

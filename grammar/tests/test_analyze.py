@@ -128,8 +128,50 @@ class TestAnalyze(unittest.TestCase):
         t09 = ParseTree("i")
         t10 = ParseTree("T", [t09, t08])
         tree = ParseTree("E", [t10, t02])
-        
+
         self._check_parse_tree(table, "i*i$", "E", tree)
+
+    def test_case4(self) -> None:
+        """Test for get_ll1_table method."""
+        grammar_str = """
+        A -> BCD
+        B -> <
+        B ->
+        C -> 0C;
+        C -> 1C;
+        D -> 0>
+        D -> 1>
+        """
+        grammar = GrammarFormat.read(grammar_str)
+        self.assertTrue(grammar.get_ll1_table() is not None)
+
+        grammar_str += "C ->"
+        grammar = GrammarFormat.read(grammar_str)
+        self.assertTrue(grammar.get_ll1_table() is None)
+
+    def test_case5(self) -> None:
+        """Test for Grammar.get_ll1_table LL1Table.analyze methods."""
+        grammar_str = """
+        A -> BCD
+        B -> b
+        B ->
+        C -> c
+        C ->
+        D -> d
+        D ->
+        """
+        grammar = GrammarFormat.read(grammar_str)
+        table = grammar.get_ll1_table()
+        self.assertTrue(table is not None)
+        self.assertTrue(table.analyze("$", 'A') is not None)
+        self.assertTrue(table.analyze("d$", 'A') is not None)
+        self.assertTrue(table.analyze("c$", 'A') is not None)
+        self.assertTrue(table.analyze("cd$", 'A') is not None)
+        self.assertTrue(table.analyze("b$", 'A') is not None)
+        self.assertTrue(table.analyze("bd$", 'A') is not None)
+        self.assertTrue(table.analyze("bc$", 'A') is not None)
+        self.assertTrue(table.analyze("bcd$", 'A') is not None)
+
 
 if __name__ == '__main__':
     unittest.main()
